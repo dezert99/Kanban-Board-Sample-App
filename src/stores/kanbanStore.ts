@@ -219,9 +219,10 @@ export const useKanbanStore = create<KanbanStore>()(
       // This is necessary during development to prevent flash of mock data before localStorage loads
       merge: (persistedState, currentState) => ({
         ...currentState,
-        ...(persistedState as any),
-        // If persisted tasks exist and are not empty, use them; otherwise use mock data
+        // Restore persisted tasks or use mock data if empty
         tasks: (persistedState as any)?.tasks?.length > 0 ? (persistedState as any).tasks : mockTasks,
+        // Restore persisted filters or use default empty filters
+        filters: (persistedState as any)?.filters || currentState.filters,
       }),
     }
   )

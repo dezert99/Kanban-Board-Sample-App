@@ -7,7 +7,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useRouter } from 'next/navigation';
 import { MouseEvent, useState } from 'react';
-import { Edit3 } from 'lucide-react';
+import { Edit3, Calendar } from 'lucide-react';
 import { TaskModal } from '@/components/task/TaskModal';
 import { TaskCardDropdown } from '@/components/shared/DropdownMenu';
 import { ConfirmationModal } from '@/components/shared/ConfirmationModal';
@@ -73,6 +73,11 @@ export function TaskCard({ task }: TaskCardProps) {
 
   const getDueDateColor = (date: Date | undefined) => {
     if (!date) return '';
+    
+    // If task is done, show gray styling since due date no longer matters
+    if (task.status === 'done') {
+      return 'bg-gray-100 text-gray-500';
+    }
     
     // Ensure date is a Date object (in case it's a string from localStorage)
     const dateObj = date instanceof Date ? date : new Date(date);
@@ -144,9 +149,10 @@ export function TaskCard({ task }: TaskCardProps) {
         
         {task.dueDate && (
           <span className={cn(
-            'px-2 py-1 text-xs rounded font-medium',
+            'px-2 py-1 text-xs rounded font-medium flex items-center gap-1',
             getDueDateColor(task.dueDate)
           )}>
+            <Calendar className="w-3 h-3" />
             {format(task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate), 'MMM d, yyyy')}
           </span>
         )}

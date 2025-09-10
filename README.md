@@ -110,11 +110,12 @@ This is a modern React-based kanban board application built with Next.js 15 and 
 - Component rendering and user interactions
 - Filter and search functionality
 - Modal and form behaviors
+
 These were chosen as these were the key pieces of functionality for the application
 
 ## Time Spent
 
-Estimated: X hours
+Estimated: 4.5 hours
 
 ## If I Had More Time...
 
@@ -149,7 +150,6 @@ If I had more time to extend this project beyond the 4-hour limit, I would imple
 - **Real-time Collaboration**: Live updates when multiple users are viewing the same board
 
 ### Performance & Architecture
-- **Virtual Scrolling**: Handle boards with hundreds of tasks efficiently
 - **Optimistic Updates**: Instant UI feedback with background synchronization
-- **PWA Support**: Offline functionality with service workers
 - **Database Backend**: Replace localStorage with a proper database for scalability
+- **Updates Accesibility Navigation**: I didn't have time to update the accessibility navigation so that a user could tab to a card and press enter to go to the card detail page.

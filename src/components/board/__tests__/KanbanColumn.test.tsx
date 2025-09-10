@@ -1,6 +1,7 @@
 import { renderWithStore, screen } from '@/test-utils'
 import { KanbanColumn } from '../KanbanColumn'
 import { mockTasks } from '@/test-utils'
+import { Task } from '@/types'
 
 // Mock @dnd-kit hooks
 jest.mock('@dnd-kit/core', () => ({
@@ -11,13 +12,13 @@ jest.mock('@dnd-kit/core', () => ({
 }))
 
 jest.mock('@dnd-kit/sortable', () => ({
-  SortableContext: ({ children }: any) => children,
+  SortableContext: ({ children }: { children: React.ReactNode }) => children,
   verticalListSortingStrategy: {},
 }))
 
 // Mock TaskCard to simplify testing
 jest.mock('../TaskCard', () => ({
-  TaskCard: ({ task }: any) => <div data-testid={`task-card-${task.id}`}>{task.title}</div>
+  TaskCard: ({ task }: { task: Task }) => <div data-testid={`task-card-${task.id}`}>{task.title}</div>
 }))
 
 describe('KanbanColumn', () => {

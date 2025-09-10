@@ -10,7 +10,6 @@ import {
   DragOverEvent,
   DragOverlay,
   DragStartEvent,
-  closestCorners,
   pointerWithin,
   rectIntersection,
   KeyboardSensor,

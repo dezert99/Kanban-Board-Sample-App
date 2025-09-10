@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
 import { Check, X, ChevronDown } from 'lucide-react';
-import { TaskStatus, Priority } from '@/types';
+// import { TaskStatus, Priority } from '@/types';
 
 interface InlineTextEditProps {
   value: string;
@@ -57,6 +57,7 @@ export function InlineTextEdit({ value, onChange, placeholder, multiline = false
     return (
       <div className="relative">
         <Component
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           ref={inputRef as any}
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}

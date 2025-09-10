@@ -46,7 +46,6 @@ export const KanbanColumn = memo(function KanbanColumn({ status, tasks, activeTa
   });
   
   const isActiveTaskInThisColumn = activeTask && tasks.find(t => t.id === activeTask.id);
-  const isDraggingFromOtherColumn = activeTask && !isActiveTaskInThisColumn;
   const isOverThisColumn = overId === status;
   const isOverTaskInThisColumn = overId && tasks.find(t => t.id === overId);
   const isDragging = !!activeTask;

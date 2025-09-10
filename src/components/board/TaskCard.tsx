@@ -7,7 +7,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useRouter } from 'next/navigation';
 import { MouseEvent, useState } from 'react';
-import { Edit3, Calendar } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 import { TaskModal } from '@/components/task/TaskModal';
 import { TaskCardDropdown } from '@/components/shared/DropdownMenu';
 import { ConfirmationModal } from '@/components/shared/ConfirmationModal';

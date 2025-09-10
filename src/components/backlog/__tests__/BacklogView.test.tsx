@@ -1,4 +1,4 @@
-import { renderWithStore, screen, userEvent, render } from '@/test-utils'
+import { screen, userEvent, render } from '@/test-utils'
 import { BacklogView } from '../BacklogView'
 import { useKanbanStore } from '@/stores/kanbanStore'
 import { Task } from '@/types'
@@ -13,7 +13,7 @@ jest.mock('next/navigation', () => ({
 
 // Mock Next.js Link component
 jest.mock('next/link', () => {
-  return ({ children, href, ...props }: any) => {
+  return ({ children, href, ...props }: { children: React.ReactNode; href: string; [key: string]: unknown }) => {
     return (
       <a 
         href={href} 

@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useKanbanStore } from '@/stores/kanbanStore';
 
 interface StoreProviderProps {
   children: React.ReactNode;

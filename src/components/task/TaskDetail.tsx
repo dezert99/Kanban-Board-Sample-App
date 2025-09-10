@@ -2,7 +2,7 @@
 
 import { useKanbanStore } from '@/stores/kanbanStore';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Calendar, User, Flag, Tag, Edit3, Trash2, MoreHorizontal } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Flag, Tag, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { InlineTextEdit, InlineSelect, InlineTagEdit, InlineDateEdit, InlineComboBox } from './InlineEdit';
 import { TaskStatus, Priority } from '@/types';
@@ -55,10 +55,10 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
     { value: 'critical', label: 'Critical' }
   ];
 
-  const assigneeOptions = allAssignees.map(assignee => ({
-    value: assignee,
-    label: assignee
-  }));
+  // const assigneeOptions = allAssignees.map(assignee => ({
+  //   value: assignee,
+  //   label: assignee
+  // }));
 
   const priorityColors = {
     low: 'text-green-700 bg-green-100',
@@ -73,7 +73,7 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
     'done': 'text-green-700 bg-green-100'
   };
 
-  const handleUpdate = (field: string, value: any) => {
+  const handleUpdate = (field: string, value: string | Date | string[] | Priority | undefined) => {
     updateTask(task.id, { [field]: value });
   };
 

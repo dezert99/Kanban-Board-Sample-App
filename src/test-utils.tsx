@@ -8,7 +8,9 @@ const localStorageMock = {
   setItem: jest.fn(),
   removeItem: jest.fn(),
   clear: jest.fn(),
-}
+  length: 0,
+  key: jest.fn(() => null),
+} as Storage
 global.localStorage = localStorageMock
 
 // Helper to reset store state
@@ -34,8 +36,8 @@ export const renderWithStore = (
   return render(ui, options)
 }
 
-// Re-export everything from React Testing Library
-export * from '@testing-library/react'
+// Re-export specific items from React Testing Library
+export { render, screen, fireEvent, waitFor, act } from '@testing-library/react'
 export { default as userEvent } from '@testing-library/user-event'
 
 // Sample test data

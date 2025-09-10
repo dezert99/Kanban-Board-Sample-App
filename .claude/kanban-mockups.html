@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Board Mockups</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .view-tabs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+        
+        .view-tab {
+            padding: 10px 20px;
+            background: white;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .view-tab:hover {
+            background: #f0f0f0;
+        }
+        
+        .view-tab.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        
+        .view-content {
+            display: none;
+        }
+        
+        .view-content.active {
+            display: block;
+        }
+        
+        .board-container {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .board-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+        
+        .board-actions {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #2563eb;
+        }
+        
+        .btn-secondary {
+            background: white;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+        
+        .btn-secondary:hover {
+            background: #f9f9f9;
+        }
+        
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+        
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-label {
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+        }
+        
+        .filter-input, .filter-select {
+            padding: 6px 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .filter-input {
+            width: 200px;
+        }
+        
+        .kanban-columns {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .kanban-column {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 400px;
+        }
+        
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .column-title {
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .column-count {
+            background: #e5e7eb;
+            color: #666;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        
+        .task-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-left: 4px solid;
+        }
+        
+        .task-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .task-card.priority-high {
+            border-left-color: #ef4444;
+        }
+        
+        .task-card.priority-medium {
+            border-left-color: #f59e0b;
+        }
+        
+        .task-card.priority-low {
+            border-left-color: #10b981;
+        }
+        
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .task-title {
+            font-weight: 500;
+            font-size: 14px;
+            color: #111;
+        }
+        
+        .task-id {
+            font-size: 11px;
+            color: #999;
+        }
+        
+        .task-description {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        
+        .task-tags {
+            display: flex;
+            gap: 6px;
+        }
+        
+        .tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        
+        .tag-feature {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .tag-bug {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        
+        .tag-backend {
+            background: #ede9fe;
+            color: #6b21a8;
+        }
+        
+        .tag-frontend {
+            background: #cffafe;
+            color: #0e7490;
+        }
+        
+        .tag-docs {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .due-date {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        .due-overdue {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .due-tomorrow {
+            background: #fed7aa;
+            color: #ea580c;
+        }
+        
+        .due-upcoming {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .due-none {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+        
+        .task-assignee {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #666;
+        }
+        
+        .avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .avatar-jd {
+            background: #3b82f6;
+        }
+        
+        .avatar-js {
+            background: #ec4899;
+        }
+        
+        .avatar-mj {
+            background: #10b981;
+        }
+        
+        .avatar-sw {
+            background: #f59e0b;
+        }
+        
+        .avatar-unassigned {
+            background: #9ca3af;
+        }
+        
+        /* Backlog Table Styles */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th {
+            background: #f9fafb;
+            padding: 12px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .status-scheduled {
+            background: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-in-progress {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .status-done {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        
+        /* Task Detail Styles */
+        .detail-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+        
+        .detail-main {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+        }
+        
+        .detail-sidebar {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            height: fit-content;
+        }
+        
+        .detail-title {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .detail-section {
+            margin-bottom: 30px;
+        }
+        
+        .detail-section h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #111;
+        }
+        
+        .subtask-list {
+            list-style: none;
+        }
+        
+        .subtask-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+        }
+        
+        .subtask-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .subtask-item.completed span {
+            text-decoration: line-through;
+            color: #9ca3af;
+        }
+        
+        /* Mobile Styles */
+        .mobile-container {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .mobile-tabs {
+            display: flex;
+            background: #f3f4f6;
+            border-radius: 8px;
+            padding: 4px;
+            margin-bottom: 15px;
+        }
+        
+        .mobile-tab {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .mobile-tab.active {
+            background: white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .mobile-task-card {
+            background: white;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid;
+        }
+        
+        .fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: #3b82f6;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Kanban Task Management System</h1>
+            <p style="color: #666; margin-top: 5px;">Interactive mockups for all views</p>
+        </div>
+        
+        <div class="view-tabs">
+            <button class="view-tab active" onclick="switchView('board')">Board View</button>
+            <button class="view-tab" onclick="switchView('backlog')">Backlog View</button>
+            <button class="view-tab" onclick="switchView('detail')">Task Detail</button>
+            <button class="view-tab" onclick="switchView('mobile')">Mobile View</button>
+        </div>
+        
+        <!-- Board View -->
+        <div id="board-view" class="view-content active">
+            <div class="board-container">
+                <div class="board-header">
+                    <h2 class="board-title">Sprint Board</h2>
+                    <div class="board-actions">
+                        <button class="btn btn-primary">➕ New Task</button>
+                        <button class="btn btn-secondary">🔽 Filter</button>
+                    </div>
+                </div>
+                
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label class="filter-label">Assignee:</label>
+                        <select class="filter-select">
+                            <option>All</option>
+                            <option>John Doe</option>
+                            <option>Jane Smith</option>
+                            <option>Mike Johnson</option>
+                            <option>Sarah Wilson</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label class="filter-label">Tags:</label>
+                        <select class="filter-select">
+                            <option>All</option>
+                            <option>backend</option>
+                            <option>frontend</option>
+                            <option>bug</option>
+                            <option>feature</option>
+                        </select>
+                    </div>
+                    <div class="filter-group" style="flex: 1;">
+                        <label class="filter-label">Search:</label>
+                        <input type="text" class="filter-input" placeholder="Search tasks..." style="width: 100%;">
+                    </div>
+                    <button class="btn btn-secondary">Clear filters</button>
+                </div>
+                
+                <div class="kanban-columns">
+                    <!-- Scheduled Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <h3 class="column-title">Scheduled</h3>
+                            <span class="column-count">5</span>
+                        </div>
+                        
+                        <div class="task-card priority-high">
+                            <div class="task-header">
+                                <span class="task-title">Implement user authentication</span>
+                                <span class="task-id">#TSK-001</span>
+                            </div>
+                            <p class="task-description">Add JWT-based auth system with login and registration endpoints</p>
+                            <div class="task-meta">
+                                <div class="task-tags">
+                                    <span class="tag tag-backend">backend</span>
+                                    <span class="tag tag-feature">feature</span>
+                                </div>
+                                <span class="due-date due-tomorrow">Due Tomorrow</span>
+                            </div>
+                            <div class="task-assignee">
+                                <div class="avatar avatar-jd">JD</div>
+                                <span>John Doe</span>
+                            </div>
+                        </div>
+                        
+                        <div class="task-card priority-medium">
+                            <div class="task-header">
+                                <span class="task-title">Design dashboard layout</span>
+                                <span class="task-id">#TSK-002</span>
+                            </div>
+                            <p class="task-description">Create responsive dashboard with charts and metrics widgets</p>
+                            <div class="task-meta">
+                                <div class="task-tags">
+                                    <span class="tag tag-frontend">frontend</span>
+                                </div>
+                                <span class="due-date due-upcoming">Due in 3 days</span>
+                            </div>
+                            <div class="task-assignee">
+                                <div class="avatar avatar-js">JS</div>
+                                <span>Jane Smith</span>
+                            </div>
+                        </div>
+                        
+                        <div class="task-card priority-low">
+                            <div class="task-header">
+                                <span class="task-title">Write API documentation</span>
+                                <span class="task-id">#TSK-008</span>
+                            </div>
+                            <p class="task-description">Document all REST endpoints with examples</p>
+                            <div class="task-meta">
+                                <div class="task-tags">
+                                    <span class="tag tag-docs">docs</span>
+                                </div>
+                                <span class="due-date due-none">No due date</span>
+                            </div>
+                            <div class="task-assignee">
+                                <div class="avatar avatar-unassigned">?</div>
+                                <span>Unassigned</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- In Progress Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <h3 class="column-title">In Progress</h3>
+                            <span class="column-count">3</span>
+                        </div>
+                        
+                        <div class="task-card priority-high">
+                            <div class="task-header">
+                                <span class="task-title">Fix navigation bug</span>
+                                <span class="task-id">#TSK-003</span>
+                            </div>
+                            <p class="task-description">Menu doesn't close on mobile when item is selected</p>
+                            <div class="task-meta">
+                                <div class="task-tags">
+                                    <span class="tag tag-bug">bug</span>
+                                </div>
+                                <span class="due-date due-overdue">Overdue</span>
+                            </div>
+                            <div class="task-assignee">
+                                <div class="avatar avatar-jd">JD</div>
+                                <span>John Doe</span>
+                            </div>
+                        </div>
+                        
+                        <div class="task-card priority-medium">
+                            <div class="task-header">
+                                <span class="task-title">Add search functionality</span>
+                                <span class="task-id">#TSK-005</span>
+                            </div>
+                            <p class="task-description">Implement full-text search across all content types</p>
+                            <div class="task-meta">
+                                <div class="task-tags">
+                                    <span class="tag tag-feature">feature</span>
+                                    <span class="tag tag-backend">backend</span>
+                                </div>
+                                <span class="due-date due-upcoming">Due in 4 days</span>
+                            </div>
+                            <div class="task-assignee">
+                                <div class="avatar avatar-mj">MJ</div>
+                                <span>Mike Johnson</span>
+                            </div>
+                        </div>
+                        
+                        <div class="task-card priority-medium">
+                            <div class="task-header">
+                                <span class="task-title">Optimize database queries</span>
+                                <span class="task-id">#TSK-007</span>
+                            </div>
+                            <p class="task-description">Improve performance of slow-running queries in reports</p>
+                            <div class="task-meta">
+                                <div class="task-tags">
+                                    <span class="tag tag-backend">backend</span>
+                                </div>
+                                <span class="due-date due-tomorrow">Due Tomorrow</span>
+                            </div>
+                            <div class="task-assignee">
+                                <div class="avatar avatar-sw">SW</div>
+                                <span>Sarah Wilson</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Done Column -->
+                    <div class="kanban-column">
+                        <div class="column-header">
+                            <h3 class="column-title">Done</h3>
+                            <span class="column-count">7</span>
+                        </div>
+                        
+                        <div class="task-card priority-low" style="opacity: 0.7;">
+                            <div class="task-header">
+                                <span class="task-title">Setup project repository</span>
+                                <span class="task-id">#TSK-004</span>
+                            </div>
+                            <p class="task-description">Initialize Git repo with proper structure</p>
+                            <div class="task-meta">
+                                <div class="task-tags">
+                                    <span class="tag tag-backend">setup</span>
+                                </div>
+                                <span class="due-date due-none">Completed</span>
+                            </div>
+                            <div class="task-assignee">
+                                <div class="avatar avatar-jd">JD</div>
+                                <span>John Doe</span>
+                            </div>
+                        </div>
+                        
+                        <div class="task-card priority-low" style="opacity: 0.7;">
+                            <div class="task-header">
+                                <span class="task-title">Configure ESLint and Prettier</span>
+                                <span class="task-id">#TSK-006</span>
+                            </div>
+                            <p class="task-description">Setup code formatting and linting rules</p>
+                            <div class="task-meta">
+                                <div class="task-tags">
+                                    <span class="tag tag-backend">tooling</span>
+                                </div>
+                                <span class="due-date due-none">Completed</span>
+                            </div>
+                            <div class="task-assignee">
+                                <div class="avatar avatar-js">JS</div>
+                                <span>Jane Smith</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Backlog View -->
+        <div id="backlog-view" class="view-content">
+            <div class="board-container">
+                <div class="board-header">
+                    <h2 class="board-title">Backlog / All Tasks</h2>
+                    <div class="board-actions">
+                        <button class="btn btn-primary">➕ New Task</button>
+                        <button class="btn btn-secondary">Bulk Actions</button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 40px;"><input type="checkbox"></th>
+                                <th>ID</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Priority</th>
+                                <th>Assignee</th>
+                                <th>Due Date</th>
+                                <th>Tags</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td style="color: #999; font-size: 13px;">#TSK-001</td>
+                                <td><a href="#" style="color: #3b82f6; text-decoration: none; font-weight: 500;">Implement user authentication</a></td>
+                                <td><span class="status-badge status-scheduled">Scheduled</span></td>
+                                <td><span class="tag tag-bug" style="font-weight: 600;">High</span></td>
+                                <td>
+                                    <div class="task-assignee">
+                                        <div class="avatar avatar-jd">JD</div>
+                                        <span>John Doe</span>
+                                    </div>
+                                </td>
+                                <td><span style="color: #ea580c; font-weight: 500;">Tomorrow</span></td>
+                                <td>
+                                    <span class="tag tag-backend">backend</span>
+                                    <span class="tag tag-feature">feature</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px;">Edit</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td style="color: #999; font-size: 13px;">#TSK-003</td>
+                                <td><a href="#" style="color: #3b82f6; text-decoration: none; font-weight: 500;">Fix navigation bug</a></td>
+                                <td><span class="status-badge status-in-progress">In Progress</span></td>
+                                <td><span class="tag tag-bug" style="font-weight: 600;">High</span></td>
+                                <td>
+                                    <div class="task-assignee">
+                                        <div class="avatar avatar-jd">JD</div>
+                                        <span>John Doe</span>
+                                    </div>
+                                </td>
+                                <td><span style="color: #dc2626; font-weight: 500;">Overdue</span></td>
+                                <td>
+                                    <span class="tag tag-bug">bug</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px;">Edit</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><input type="checkbox"></td>
+                                <td style="color: #999; font-size: 13px;">#TSK-004</td>
+                                <td><a href="#" style="color: #3b82f6; text-decoration: none; font-weight: 500;">Setup project repository</a></td>
+                                <td><span class="status-badge status-done">Done</span></td>
+                                <td><span style="color: #10b981;">Low</span></td>
+                                <td>
+                                    <div class="task-assignee">
+                                        <div class="avatar avatar-jd">JD</div>
+                                        <span>John Doe</span>
+                                    </div>
+                                </td>
+                                <td><span style="color: #10b981;">Completed</span></td>
+                                <td>
+                                    <span class="tag tag-backend">setup</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-secondary" style="padding: 4px 8px;">Edit</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 20px;">
+                    <p style="color: #666; font-size: 14px;">Showing 1-10 of 15 tasks</p>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary">Previous</button>
+                        <button class="btn btn-primary">1</button>
+                        <button class="btn btn-secondary">2</button>
+                        <button class="btn btn-secondary">Next</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Task Detail View -->
+        <div id="detail-view" class="view-content">
+            <div class="board-container">
+                <nav style="margin-bottom: 20px; color: #666; font-size: 14px;">
+                    <a href="#" style="color: #3b82f6; text-decoration: none;">Board</a> / 
+                    <a href="#" style="color: #3b82f6; text-decoration: none;">In Progress</a> / 
+                    TSK-001
+                </nav>
+                
+                <div class="detail-container">
+                    <div class="detail-main">
+                        <h1 class="detail-title">Implement user authentication</h1>
+                        
+                        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                            <span class="status-badge status-in-progress">In Progress</span>
+                            <span class="tag tag-bug" style="padding: 6px 12px;">High Priority</span>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3>Description</h3>
+                            <p style="line-height: 1.6; color: #333;">
+                                Implement a complete JWT-based authentication system for the application. This includes:
+                            </p>
+                            <ul style="margin-top: 10px; margin-left: 20px; line-height: 1.8;">
+                                <li>User registration with email validation</li>
+                                <li>Login with email and password</li>
+                                <li>Password reset functionality</li>
+                                <li>JWT token generation and validation</li>
+                                <li>Protected route middleware</li>
+                            </ul>
+                            <p style="margin-top: 10px; line-height: 1.6; color: #333;">
+                                The system should follow security best practices including password hashing with bcrypt, 
+                                secure token storage, and proper error handling.
+                            </p>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3>Subtasks</h3>
+                            <ul class="subtask-list">
+                                <li class="subtask-item completed">
+                                    <input type="checkbox" checked>
+                                    <span>Setup JWT library</span>
+                                </li>
+                                <li class="subtask-item completed">
+                                    <input type="checkbox" checked>
+                                    <span>Create user model</span>
+                                </li>
+                                <li class="subtask-item">
+                                    <input type="checkbox">
+                                    <span>Implement login endpoint</span>
+                                </li>
+                                <li class="subtask-item">
+                                    <input type="checkbox">
+                                    <span>Add password reset functionality</span>
+                                </li>
+                                <li class="subtask-item">
+                                    <input type="checkbox">
+                                    <span>Write unit tests</span>
+                                </li>
+                            </ul>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3>Activity</h3>
+                            <div style="border-left: 2px solid #e5e7eb; padding-left: 20px;">
+                                <div style="margin-bottom: 20px;">
+                                    <div style="display: flex; align-items: start; gap: 12px;">
+                                        <div class="avatar avatar-jd">JD</div>
+                                        <div>
+                                            <p style="font-size: 14px;"><strong>John Doe</strong> moved this from Scheduled to In Progress</p>
+                                            <p style="font-size: 12px; color: #999; margin-top: 4px;">2 hours ago</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="margin-bottom: 20px;">
+                                    <div style="display: flex; align-items: start; gap: 12px;">
+                                        <div class="avatar avatar-js">JS</div>
+                                        <div>
+                                            <p style="font-size: 14px;"><strong>Jane Smith</strong> commented</p>
+                                            <div style="background: #f9fafb; padding: 12px; border-radius: 8px; margin-top: 8px;">
+                                                <p style="font-size: 14px;">Make sure to implement rate limiting on the login endpoint to prevent brute force attacks.</p>
+                                            </div>
+                                            <p style="font-size: 12px; color: #999; margin-top: 4px;">Yesterday at 3:45 PM</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-sidebar">
+                        <div class="detail-section">
+                            <h3 style="font-size: 14px; text-transform: uppercase; color: #6b7280; margin-bottom: 15px;">Details</h3>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <p style="font-size: 13px; color: #999; margin-bottom: 5px;">Assignee</p>
+                                <div class="task-assignee">
+                                    <div class="avatar avatar-jd">JD</div>
+                                    <span style="font-weight: 500;">John Doe</span>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <p style="font-size: 13px; color: #999; margin-bottom: 5px;">Due Date</p>
+                                <p style="font-weight: 500; color: #ea580c;">Tomorrow (Dec 15, 2024)</p>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <p style="font-size: 13px; color: #999; margin-bottom: 5px;">Priority</p>
+                                <p style="font-weight: 500; color: #dc2626;">High</p>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <p style="font-size: 13px; color: #999; margin-bottom: 5px;">Created</p>
+                                <p style="font-size: 14px;">Dec 10, 2024</p>
+                            </div>
+                            
+                            <div style="margin-bottom: 15px;">
+                                <p style="font-size: 13px; color: #999; margin-bottom: 5px;">Updated</p>
+                                <p style="font-size: 14px;">2 hours ago</p>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-section">
+                            <h3 style="font-size: 14px; text-transform: uppercase; color: #6b7280; margin-bottom: 15px;">Tags</h3>
+                            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                                <span class="tag tag-backend">backend</span>
+                                <span class="tag tag-feature">feature</span>
+                                <span class="tag tag-frontend">security</span>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; gap: 10px; margin-top: 30px;">
+                            <button class="btn btn-primary" style="flex: 1;">Edit Task</button>
+                            <button class="btn btn-secondary" style="flex: 1; color: #dc2626;">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Mobile View -->
+        <div id="mobile-view" class="view-content">
+            <div class="mobile-container">
+                <div class="board-container">
+                    <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 15px;">Mobile Board</h2>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <input type="text" placeholder="Search tasks..." style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px;">
+                    </div>
+                    
+                    <div class="mobile-tabs">
+                        <div class="mobile-tab active">Scheduled (5)</div>
+                        <div class="mobile-tab">In Progress (3)</div>
+                        <div class="mobile-tab">Done (7)</div>
+                    </div>
+                    
+                    <div>
+                        <div class="mobile-task-card priority-high">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-weight: 500;">Implement user auth</span>
+                                <span style="font-size: 11px; color: #999;">#001</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div class="avatar avatar-jd" style="width: 20px; height: 20px; font-size: 9px;">JD</div>
+                                    <span style="font-size: 12px;">John Doe</span>
+                                </div>
+                                <span class="due-date due-tomorrow" style="font-size: 11px;">Tomorrow</span>
+                            </div>
+                        </div>
+                        
+                        <div class="mobile-task-card priority-medium">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-weight: 500;">Design dashboard</span>
+                                <span style="font-size: 11px; color: #999;">#002</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 6px;">
+                                    <div class="avatar avatar-js" style="width: 20px; height: 20px; font-size: 9px;">JS</div>
+                                    <span style="font-size: 12px;">Jane Smith</span>
+                                </div>
+                                <span class="due-date due-upcoming" style="font-size: 11px;">3 days</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="fab">+</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function switchView(view) {
+            // Hide all views
+            document.querySelectorAll('.view-content').forEach(v => {
+                v.classList.remove('active');
+            });
+            
+            // Show selected view
+            document.getElementById(view + '-view').classList.add('active');
+            
+            // Update tab states
+            document.querySelectorAll('.view-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase().includes(view)) {
+                    tab.classList.add('active');
+                }
+            });
+        }
+    </script>
+</body>
+</html>

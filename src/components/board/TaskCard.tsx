@@ -6,7 +6,9 @@ import { format } from 'date-fns';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useRouter } from 'next/navigation';
-import { MouseEvent } from 'react';
+import { MouseEvent, useState } from 'react';
+import { Edit3 } from 'lucide-react';
+import { TaskModal } from '@/components/task/TaskModal';
 
 interface TaskCardProps {
   task: Task;
@@ -14,6 +16,7 @@ interface TaskCardProps {
 
 export function TaskCard({ task }: TaskCardProps) {
   const router = useRouter();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const {
     attributes,
     listeners,
@@ -36,11 +39,17 @@ export function TaskCard({ task }: TaskCardProps) {
   };
 
   const handleClick = (e: MouseEvent) => {
-    // Only navigate if we're not dragging
-    if (!isDragging) {
+    // Only navigate if we're not dragging and not clicking on edit button
+    const target = e.target as HTMLElement;
+    if (!isDragging && !target.closest('.edit-button')) {
       e.preventDefault();
       router.push(`/task/${task.id}`);
     }
+  };
+  
+  const handleEditClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    setIsEditModalOpen(true);
   };
 
   const priorityColors = {
@@ -64,6 +73,7 @@ export function TaskCard({ task }: TaskCardProps) {
   };
 
   return (
+    <>
     <div
       ref={setNodeRef}
       style={style}
@@ -78,12 +88,21 @@ export function TaskCard({ task }: TaskCardProps) {
       )}
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-medium text-sm text-gray-900 line-clamp-2">
+        <h3 className="font-medium text-sm text-gray-900 line-clamp-2 flex-1">
           {task.title}
         </h3>
-        <span className="text-xs text-gray-500 ml-2 shrink-0">
-          {task.id}
-        </span>
+        <div className="flex items-center gap-1 ml-2 shrink-0">
+          <button
+            onClick={handleEditClick}
+            className="edit-button p-1 text-gray-400 hover:text-gray-600 transition-colors rounded"
+            title="Edit task"
+          >
+            <Edit3 className="w-3 h-3" />
+          </button>
+          <span className="text-xs text-gray-500">
+            {task.id}
+          </span>
+        </div>
       </div>
       
       <p className="text-sm text-gray-600 mb-3 line-clamp-2">
@@ -121,5 +140,12 @@ export function TaskCard({ task }: TaskCardProps) {
         )}
       </div>
     </div>
+    
+    <TaskModal 
+      task={task}
+      isOpen={isEditModalOpen}
+      onClose={() => setIsEditModalOpen(false)}
+    />
+  </>
   );
 }

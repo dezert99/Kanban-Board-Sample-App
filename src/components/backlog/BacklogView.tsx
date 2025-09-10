@@ -7,9 +7,9 @@ import { ExternalLink } from 'lucide-react';
 
 function StatusBadge({ status }: { status: string }) {
   const statusConfig = {
-    'scheduled': 'bg-gray-100 text-gray-800',
-    'in-progress': 'bg-blue-100 text-blue-800',
-    'done': 'bg-green-100 text-green-800'
+    'scheduled': 'bg-gray-100 text-gray-700 border border-gray-200',
+    'in-progress': 'bg-blue-100 text-blue-700 border border-blue-200',
+    'done': 'bg-green-100 text-green-700 border border-green-200'
   };
 
   const statusLabels = {
@@ -19,7 +19,7 @@ function StatusBadge({ status }: { status: string }) {
   };
 
   return (
-    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusConfig[status as keyof typeof statusConfig]}`}>
+    <span className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap ${statusConfig[status as keyof typeof statusConfig]}`}>
       {statusLabels[status as keyof typeof statusLabels]}
     </span>
   );
@@ -29,14 +29,14 @@ function PriorityBadge({ priority }: { priority?: string }) {
   if (!priority) return <span className="text-gray-400">-</span>;
 
   const priorityConfig = {
-    low: 'bg-green-100 text-green-800',
-    medium: 'bg-yellow-100 text-yellow-800',
-    high: 'bg-orange-100 text-orange-800',
-    critical: 'bg-red-100 text-red-800'
+    low: 'bg-green-100 text-green-700 border border-green-200',
+    medium: 'bg-yellow-100 text-yellow-700 border border-yellow-200',
+    high: 'bg-orange-100 text-orange-700 border border-orange-200',
+    critical: 'bg-red-100 text-red-700 border border-red-200'
   };
 
   return (
-    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full capitalize ${priorityConfig[priority as keyof typeof priorityConfig]}`}>
+    <span className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-full capitalize whitespace-nowrap ${priorityConfig[priority as keyof typeof priorityConfig]}`}>
       {priority}
     </span>
   );

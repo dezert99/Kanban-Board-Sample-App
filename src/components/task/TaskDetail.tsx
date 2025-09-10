@@ -2,8 +2,10 @@
 
 import { useKanbanStore } from '@/stores/kanbanStore';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Calendar, User, Flag, Tag } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Flag, Tag, Edit3 } from 'lucide-react';
 import { format } from 'date-fns';
+import { InlineTextEdit, InlineSelect, InlineTagEdit, InlineDateEdit, InlineComboBox } from './InlineEdit';
+import { TaskStatus, Priority } from '@/types';
 
 interface TaskDetailProps {
   taskId: string;
@@ -11,9 +13,12 @@ interface TaskDetailProps {
 
 export function TaskDetail({ taskId }: TaskDetailProps) {
   const router = useRouter();
-  const task = useKanbanStore(state => 
-    state.tasks.find(t => t.id === taskId)
-  );
+  const { tasks, updateTask } = useKanbanStore();
+  const task = tasks.find(t => t.id === taskId);
+  
+  // Get all unique assignees and tags for dropdowns
+  const allAssignees = [...new Set(tasks.map(t => t.assignee))];
+  const allTags = [...new Set(tasks.flatMap(t => t.tags))];
   
   if (!task) {
     return (
@@ -33,11 +38,23 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
     );
   }
 
-  const statusLabels = {
-    'scheduled': 'Scheduled',
-    'in-progress': 'In Progress',
-    'done': 'Done'
-  };
+  const statusOptions = [
+    { value: 'scheduled', label: 'Scheduled' },
+    { value: 'in-progress', label: 'In Progress' },
+    { value: 'done', label: 'Done' }
+  ];
+
+  const priorityOptions = [
+    { value: 'low', label: 'Low' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'high', label: 'High' },
+    { value: 'critical', label: 'Critical' }
+  ];
+
+  const assigneeOptions = allAssignees.map(assignee => ({
+    value: assignee,
+    label: assignee
+  }));
 
   const priorityColors = {
     low: 'text-green-700 bg-green-100',
@@ -50,6 +67,10 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
     'scheduled': 'text-gray-700 bg-gray-100',
     'in-progress': 'text-blue-700 bg-blue-100',
     'done': 'text-green-700 bg-green-100'
+  };
+
+  const handleUpdate = (field: string, value: any) => {
+    updateTask(task.id, { [field]: value });
   };
   
   return (
@@ -66,7 +87,14 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
         {/* Main Content */}
         <div className="lg:col-span-2">
           <div className="mb-6">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">{task.title}</h1>
+            <div className="group">
+              <InlineTextEdit
+                value={task.title}
+                onChange={(value) => handleUpdate('title', value)}
+                placeholder="Enter task title..."
+                className="text-3xl font-bold text-gray-900 mb-2 min-h-[2.5rem]"
+              />
+            </div>
             <div className="flex items-center gap-2 text-sm text-gray-500">
               <span>{task.id}</span>
               <span>•</span>
@@ -82,7 +110,13 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
           
           <div className="prose max-w-none mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-3">Description</h2>
-            <p className="text-gray-700 leading-relaxed">{task.description}</p>
+            <InlineTextEdit
+              value={task.description}
+              onChange={(value) => handleUpdate('description', value)}
+              placeholder="Add a description..."
+              multiline={true}
+              className="text-gray-700 leading-relaxed min-h-[4rem]"
+            />
           </div>
           
           {task.subtasks && task.subtasks.length > 0 && (
@@ -118,9 +152,16 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
                   Status
                 </dt>
                 <dd>
-                  <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${statusColors[task.status]}`}>
-                    {statusLabels[task.status]}
-                  </span>
+                  <InlineSelect
+                    value={task.status}
+                    onChange={(value) => handleUpdate('status', value as TaskStatus)}
+                    options={statusOptions}
+                    renderValue={(value) => (
+                      <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium ${statusColors[value as TaskStatus]}`}>
+                        {statusOptions.find(opt => opt.value === value)?.label}
+                      </span>
+                    )}
+                  />
                 </dd>
               </div>
               
@@ -129,58 +170,70 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
                   <User className="w-4 h-4" />
                   Assignee
                 </dt>
-                <dd className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sm font-medium">
-                    {task.assignee.split(' ').map(n => n[0]).join('')}
-                  </div>
-                  <span className="text-gray-900">{task.assignee}</span>
+                <dd>
+                  <InlineComboBox
+                    value={task.assignee}
+                    onChange={(value) => handleUpdate('assignee', value)}
+                    options={allAssignees}
+                    placeholder="Assign to someone..."
+                    renderValue={(value) => (
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sm font-medium">
+                          {value.split(' ').map(n => n[0]).join('')}
+                        </div>
+                        <span className="text-gray-900">{value}</span>
+                      </div>
+                    )}
+                  />
                 </dd>
               </div>
               
-              {task.priority && (
-                <div>
-                  <dt className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-1">
-                    <Flag className="w-4 h-4" />
-                    Priority
-                  </dt>
-                  <dd>
-                    <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium capitalize ${priorityColors[task.priority]}`}>
-                      {task.priority}
-                    </span>
-                  </dd>
-                </div>
-              )}
-              
-              {task.dueDate && (
-                <div>
-                  <dt className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-1">
-                    <Calendar className="w-4 h-4" />
-                    Due Date
-                  </dt>
-                  <dd className="text-gray-900">
-                    {format(task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate), 'MMMM d, yyyy')}
-                  </dd>
-                </div>
-              )}
-              
-              {task.tags.length > 0 && (
-                <div>
-                  <dt className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-2">
-                    <Tag className="w-4 h-4" />
-                    Tags
-                  </dt>
-                  <dd className="flex flex-wrap gap-2">
-                    {task.tags.map(tag => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-blue-100 text-blue-700 text-sm rounded"
-                      >
-                        {tag}
+              <div>
+                <dt className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-1">
+                  <Flag className="w-4 h-4" />
+                  Priority
+                </dt>
+                <dd>
+                  <InlineSelect
+                    value={task.priority || 'medium'}
+                    onChange={(value) => handleUpdate('priority', value as Priority)}
+                    options={priorityOptions}
+                    renderValue={(value) => (
+                      <span className={`inline-flex px-3 py-1 rounded-full text-sm font-medium capitalize ${priorityColors[value as Priority]}`}>
+                        {value}
                       </span>
-                    ))}
-                  </dd>
-                </div>
-              )}
+                    )}
+                  />
+                </dd>
+              </div>
+              
+              <div>
+                <dt className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-1">
+                  <Calendar className="w-4 h-4" />
+                  Due Date
+                </dt>
+                <dd>
+                  <InlineDateEdit
+                    value={task.dueDate ? (task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate)) : undefined}
+                    onChange={(value) => handleUpdate('dueDate', value)}
+                    placeholder="Set due date"
+                  />
+                </dd>
+              </div>
+              
+              <div>
+                <dt className="flex items-center gap-2 text-sm font-medium text-gray-500 mb-2">
+                  <Tag className="w-4 h-4" />
+                  Tags
+                </dt>
+                <dd>
+                  <InlineTagEdit
+                    tags={task.tags}
+                    onChange={(value) => handleUpdate('tags', value)}
+                    allTags={allTags}
+                  />
+                </dd>
+              </div>
             </dl>
           </div>
         </div>

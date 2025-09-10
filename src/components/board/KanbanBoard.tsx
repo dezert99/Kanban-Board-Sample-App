@@ -26,7 +26,12 @@ import { TaskCard } from './TaskCard';
 
 const COLUMNS: TaskStatus[] = ['scheduled', 'in-progress', 'done'];
 
-export function KanbanBoard() {
+interface KanbanBoardProps {
+  onCreateTask?: (status: TaskStatus) => void;
+  isLoading?: boolean;
+}
+
+export function KanbanBoard({ onCreateTask, isLoading }: KanbanBoardProps) {
   const [activeTask, setActiveTask] = useState<Task | null>(null);
   const [overId, setOverId] = useState<string | null>(null);
   const { getTasksByStatus, reorderTasksInColumn, moveTaskToColumn, tasks } = useKanbanStore();
@@ -133,6 +138,8 @@ export function KanbanBoard() {
             tasks={getTasksByStatus(status)}
             activeTask={activeTask}
             overId={overId}
+            onCreateTask={onCreateTask ? () => onCreateTask(status) : undefined}
+            isLoading={isLoading}
           />
         ))}
       </div>

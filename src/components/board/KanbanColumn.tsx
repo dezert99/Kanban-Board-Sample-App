@@ -5,12 +5,16 @@ import { Task, TaskStatus } from '@/types';
 import { TaskCard } from './TaskCard';
 import { useDroppable } from '@dnd-kit/core';
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { ColumnEmptyState } from '@/components/shared/EmptyState';
+import { TaskCountLoader, TaskCardSkeleton } from '@/components/shared/LoadingSkeleton';
 
 interface KanbanColumnProps {
   status: TaskStatus;
   tasks: Task[];
   activeTask?: Task | null;
   overId?: string | null;
+  onCreateTask?: () => void;
+  isLoading?: boolean;
 }
 
 const COLUMN_CONFIG = {
@@ -31,7 +35,7 @@ const COLUMN_CONFIG = {
   }
 };
 
-export const KanbanColumn = memo(function KanbanColumn({ status, tasks, activeTask, overId }: KanbanColumnProps) {
+export const KanbanColumn = memo(function KanbanColumn({ status, tasks, activeTask, overId, onCreateTask, isLoading }: KanbanColumnProps) {
   const config = COLUMN_CONFIG[status];
   
   const { setNodeRef, isOver } = useDroppable({
@@ -53,9 +57,13 @@ export const KanbanColumn = memo(function KanbanColumn({ status, tasks, activeTa
         <h2 className={`font-semibold ${config.headerColor}`}>
           {config.title}
         </h2>
-        <span className="bg-white text-gray-600 px-2 py-1 rounded-full text-sm font-medium">
-          {tasks.length}
-        </span>
+        {isLoading ? (
+          <TaskCountLoader />
+        ) : (
+          <span className="bg-white text-gray-600 px-2 py-1 rounded-full text-sm font-medium">
+            {tasks.length}
+          </span>
+        )}
       </div>
       
       <SortableContext items={tasks.map(task => task.id)} strategy={verticalListSortingStrategy}>
@@ -65,14 +73,34 @@ export const KanbanColumn = memo(function KanbanColumn({ status, tasks, activeTa
             isOver && isDragging && !isActiveTaskInThisColumn ? 'bg-blue-50 bg-opacity-30 rounded-lg' : ''
           }`}
         >
-          {tasks.length === 0 ? (
-            <div className="text-center py-8 text-gray-500 text-sm">
+          {isLoading ? (
+            // Show skeleton loading state
+            <div className="space-y-3">
+              <TaskCardSkeleton />
+              <TaskCardSkeleton />
+              <div className="animate-pulse bg-white rounded-lg shadow-sm p-3 border-l-4 border-gray-200 opacity-50">
+                <div className="h-4 bg-gray-200 rounded w-2/3 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className="text-center">
               {isDragging && (isOverThisColumn || isOver) && !isActiveTaskInThisColumn ? (
                 <div className="mb-4 p-4 border-2 border-dashed border-blue-300 bg-blue-50 rounded-lg text-blue-600 font-medium">
                   Drop here
                 </div>
-              ) : null}
-              {`No tasks in ${config.title.toLowerCase()}`}
+              ) : (
+                onCreateTask ? (
+                  <ColumnEmptyState 
+                    columnName={config.title} 
+                    onCreateTask={onCreateTask}
+                  />
+                ) : (
+                  <div className="text-center py-8 text-gray-500 text-sm">
+                    {`No tasks in ${config.title.toLowerCase()}`}
+                  </div>
+                )
+              )}
             </div>
           ) : (
             tasks.map((task, index) => {

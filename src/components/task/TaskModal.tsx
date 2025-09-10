@@ -9,21 +9,22 @@ interface TaskModalProps {
   task?: Task;
   isOpen: boolean;
   onClose: () => void;
+  defaultStatus?: TaskStatus;
 }
 
-export function TaskModal({ task, isOpen, onClose }: TaskModalProps) {
+export function TaskModal({ task, isOpen, onClose, defaultStatus }: TaskModalProps) {
   const { addTask, updateTask, tasks } = useKanbanStore();
   const [formData, setFormData] = useState({
     title: task?.title || '',
     description: task?.description || '',
-    status: task?.status || 'scheduled' as TaskStatus,
+    status: task?.status || defaultStatus || 'scheduled' as TaskStatus,
     assignee: task?.assignee || '',
     priority: task?.priority || 'medium' as Priority,
     tags: task?.tags || [] as string[],
     dueDate: task?.dueDate ? (task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate)).toISOString().split('T')[0] : '',
   });
 
-  // Reset form when task changes
+  // Reset form when task or defaultStatus changes
   useEffect(() => {
     if (task) {
       setFormData({
@@ -39,14 +40,14 @@ export function TaskModal({ task, isOpen, onClose }: TaskModalProps) {
       setFormData({
         title: '',
         description: '',
-        status: 'scheduled',
+        status: defaultStatus || 'scheduled',
         assignee: '',
         priority: 'medium',
         tags: [],
         dueDate: '',
       });
     }
-  }, [task]);
+  }, [task, defaultStatus]);
 
   // Get unique assignees and tags for dropdowns
   const assignees = [...new Set(tasks.map(t => t.assignee))];

@@ -1,6 +1,7 @@
 import { BacklogView } from '@/components/backlog/BacklogView';
 import { FilterBar } from '@/components/shared/FilterBar';
 import { ClientOnly } from '@/components/shared/ClientOnly';
+import { BacklogTableSkeleton } from '@/components/shared/LoadingSkeleton';
 import Link from 'next/link';
 import { Columns } from 'lucide-react';
 
@@ -18,8 +19,8 @@ export default function BacklogPage() {
             Board View
           </Link>
         </div>
-        <ClientOnly fallback={<div>Loading...</div>}>
-          <FilterBar />
+        <FilterBar />
+        <ClientOnly fallback={<BacklogTableSkeleton />}>
           <BacklogView />
         </ClientOnly>
       </div>

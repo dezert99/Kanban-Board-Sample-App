@@ -2,19 +2,80 @@
 
 import { useKanbanStore } from '@/stores/kanbanStore';
 import { Search, X } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 
 export function FilterBar() {
   const { filters, setFilter, clearFilters, tasks } = useKanbanStore();
+  const [isTagComboOpen, setIsTagComboOpen] = useState(false);
+  const [tagInput, setTagInput] = useState('');
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const inputRef = useRef<HTMLInputElement>(null);
   
   // Get unique assignees and tags
   const assignees = [...new Set(tasks.map(t => t.assignee))];
   const allTags = [...new Set(tasks.flatMap(t => t.tags))];
+  const availableTags = allTags.filter(tag => !filters.tags.includes(tag));
   
-  const handleTagToggle = (tag: string) => {
-    const newTags = filters.tags.includes(tag)
-      ? filters.tags.filter(t => t !== tag)
-      : [...filters.tags, tag];
-    setFilter({ tags: newTags });
+  // Filter available tags based on input
+  const filteredTags = availableTags.filter(tag => 
+    tag.toLowerCase().includes(tagInput.toLowerCase())
+  );
+
+  useEffect(() => {
+    if (isTagComboOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isTagComboOpen]);
+
+  useEffect(() => {
+    setSelectedIndex(-1);
+  }, [tagInput]);
+  
+  const handleTagAdd = (tag: string) => {
+    if (tag && !filters.tags.includes(tag)) {
+      setFilter({ tags: [...filters.tags, tag] });
+    }
+    setIsTagComboOpen(false);
+    setTagInput('');
+    setSelectedIndex(-1);
+  };
+
+  const handleTagRemove = (tag: string) => {
+    setFilter({ tags: filters.tags.filter(t => t !== tag) });
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (selectedIndex >= 0 && filteredTags[selectedIndex]) {
+        handleTagAdd(filteredTags[selectedIndex]);
+      }
+      // Don't allow creating new tags - only selecting existing ones
+    } else if (e.key === 'Escape') {
+      setIsTagComboOpen(false);
+      setTagInput('');
+      setSelectedIndex(-1);
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedIndex(prev => Math.min(prev + 1, filteredTags.length - 1));
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedIndex(prev => Math.max(prev - 1, -1));
+    }
+  };
+
+  const handleOptionClick = (tag: string) => {
+    handleTagAdd(tag);
+  };
+
+  const handleInputBlur = () => {
+    // Delay to allow option clicks
+    setTimeout(() => {
+      // Only close the combo box, don't add tags on blur
+      setIsTagComboOpen(false);
+      setTagInput('');
+      setSelectedIndex(-1);
+    }, 150);
   };
   
   const hasActiveFilters = filters.search || filters.assignee || filters.tags.length > 0;
@@ -63,50 +124,68 @@ export function FilterBar() {
       
       {/* Tag Filter Section */}
       <div className="mt-4">
-        <div className="flex flex-wrap gap-2">
-          <span className="text-sm font-medium text-gray-700 self-center">
-            Tags:
+        <div className="flex flex-wrap gap-2 items-center">
+          <span className="text-sm font-medium text-gray-700">
+            Filter by tags:
           </span>
-          {allTags.map(tag => (
+          {isTagComboOpen ? (
+            <div className="relative min-w-[200px]">
+              <input
+                ref={inputRef}
+                type="text"
+                value={tagInput}
+                onChange={(e) => setTagInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                onBlur={handleInputBlur}
+                placeholder="Search existing tags..."
+                className="w-full px-3 py-2 border border-blue-500 rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              {filteredTags.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-40 overflow-y-auto">
+                  {filteredTags.map((tag, index) => (
+                    <div
+                      key={tag}
+                      onClick={() => handleOptionClick(tag)}
+                      className={`px-3 py-2 cursor-pointer hover:bg-gray-100 ${
+                        index === selectedIndex ? 'bg-blue-100' : ''
+                      }`}
+                    >
+                      {tag}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ) : (
             <button
-              key={tag}
-              onClick={() => handleTagToggle(tag)}
-              className={`px-3 py-1 text-sm rounded-full border transition-colors ${
-                filters.tags.includes(tag)
-                  ? 'bg-blue-100 text-blue-700 border-blue-300'
-                  : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
-              }`}
+              onClick={() => setIsTagComboOpen(true)}
+              className="px-3 py-1 text-sm text-gray-600 bg-gray-100 hover:bg-gray-200 rounded border border-dashed border-gray-300 hover:border-gray-400 transition-all"
             >
-              {tag}
+              + Add tag filter
             </button>
-          ))}
+          )}
         </div>
-      </div>
-      
-      {/* Active Tags Display */}
-      {filters.tags.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-sm text-gray-600">
-              Active filters:
-            </span>
+        
+        {/* Selected Tags Display */}
+        {filters.tags.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
             {filters.tags.map(tag => (
               <span
                 key={tag}
-                className="px-2 py-1 bg-blue-100 text-blue-700 rounded flex items-center gap-1 text-sm"
+                className="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 text-blue-700 text-sm rounded"
               >
                 {tag}
                 <button
-                  onClick={() => handleTagToggle(tag)}
-                  className="hover:bg-blue-200 rounded p-0.5"
+                  onClick={() => handleTagRemove(tag)}
+                  className="text-blue-500 hover:text-blue-700 transition-colors"
                 >
                   <X className="w-3 h-3" />
                 </button>
               </span>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

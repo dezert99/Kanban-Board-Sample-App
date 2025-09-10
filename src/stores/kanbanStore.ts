@@ -65,23 +65,48 @@ export const useKanbanStore = create<KanbanStore>()(
       
       reorderTasksInColumn: (status, oldIndex, newIndex) =>
         set((state) => {
-          const columnTasks = state.tasks
+          // Get filtered tasks for this column (same as what the UI sees)
+          const filteredColumnTasks = get().getTasksByStatus(status);
+          
+          // Get the actual task that was moved
+          const movedTask = filteredColumnTasks[oldIndex];
+          if (!movedTask) return state;
+          
+          // Get all tasks for this status (including filtered out ones)
+          const allColumnTasks = state.tasks
             .filter((task) => task.status === status)
             .sort((a, b) => a.sortOrder - b.sortOrder);
           
-          const [movedTask] = columnTasks.splice(oldIndex, 1);
-          columnTasks.splice(newIndex, 0, movedTask);
+          // Create a new order array with the moved task in its new position
+          const reorderedFilteredTasks = [...filteredColumnTasks];
+          reorderedFilteredTasks.splice(oldIndex, 1);
+          reorderedFilteredTasks.splice(newIndex, 0, movedTask);
           
-          const updatedColumnTasks = columnTasks.map((task, index) => ({
-            ...task,
-            sortOrder: index,
-            updatedAt: new Date(),
-          }));
-          
-          const otherTasks = state.tasks.filter((task) => task.status !== status);
+          // Update sortOrder for all tasks in this column based on new filtered order
+          const updatedTasks = state.tasks.map((task) => {
+            if (task.status !== status) return task;
+            
+            const indexInFiltered = reorderedFilteredTasks.findIndex(t => t.id === task.id);
+            if (indexInFiltered !== -1) {
+              // Task is visible - use its position in the filtered list
+              return {
+                ...task,
+                sortOrder: indexInFiltered,
+                updatedAt: new Date(),
+              };
+            } else {
+              // Task is filtered out - keep its existing sortOrder but shift if needed
+              const originalIndex = allColumnTasks.findIndex(t => t.id === task.id);
+              return {
+                ...task,
+                sortOrder: originalIndex >= newIndex ? originalIndex + 1 : originalIndex,
+                updatedAt: new Date(),
+              };
+            }
+          });
           
           return {
-            tasks: [...otherTasks, ...updatedColumnTasks],
+            tasks: updatedTasks,
           };
         }),
       
@@ -90,28 +115,43 @@ export const useKanbanStore = create<KanbanStore>()(
           const task = state.tasks.find((t) => t.id === taskId);
           if (!task) return state;
           
-          const targetColumnTasks = state.tasks
-            .filter((t) => t.status === newStatus && t.id !== taskId)
-            .sort((a, b) => a.sortOrder - b.sortOrder);
+          // Get filtered tasks for target column (same as what the UI sees)
+          const filteredTargetTasks = get().getTasksByStatus(newStatus);
           
-          targetColumnTasks.splice(targetIndex, 0, {
+          // Insert the moved task at the target position in the filtered list
+          const newFilteredOrder = [...filteredTargetTasks];
+          newFilteredOrder.splice(targetIndex, 0, {
             ...task,
             status: newStatus,
             updatedAt: new Date(),
           });
           
-          const updatedTargetTasks = targetColumnTasks.map((task, index) => ({
-            ...task,
-            sortOrder: index,
-            updatedAt: new Date(),
-          }));
-          
-          const otherTasks = state.tasks.filter(
-            (t) => t.status !== newStatus && t.id !== taskId
-          );
+          // Update all tasks
+          const updatedTasks = state.tasks.map((t) => {
+            if (t.id === taskId) {
+              // Update the moved task
+              return {
+                ...t,
+                status: newStatus,
+                sortOrder: targetIndex,
+                updatedAt: new Date(),
+              };
+            } else if (t.status === newStatus) {
+              // Update other tasks in the target column
+              const indexInFiltered = newFilteredOrder.findIndex(ft => ft.id === t.id);
+              if (indexInFiltered !== -1) {
+                return {
+                  ...t,
+                  sortOrder: indexInFiltered,
+                  updatedAt: new Date(),
+                };
+              }
+            }
+            return t;
+          });
           
           return {
-            tasks: [...otherTasks, ...updatedTargetTasks],
+            tasks: updatedTasks,
           };
         }),
       

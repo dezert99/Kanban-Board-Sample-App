@@ -21,11 +21,18 @@ export function TaskCard({ task }: TaskCardProps) {
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: task.id });
+  } = useSortable({ 
+    id: task.id,
+    data: {
+      status: task.status,
+      task: task
+    }
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    opacity: isDragging ? 0 : 1,
   };
 
   const handleClick = (e: MouseEvent) => {

@@ -12,6 +12,8 @@ interface KanbanStore {
   updateTask: (id: string, updates: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   moveTask: (taskId: string, newStatus: TaskStatus) => void;
+  reorderTasksInColumn: (status: TaskStatus, oldIndex: number, newIndex: number) => void;
+  moveTaskToColumn: (taskId: string, newStatus: TaskStatus, targetIndex: number) => void;
   
   // Filter actions
   setFilter: (filter: Partial<FilterState>) => void;
@@ -61,6 +63,58 @@ export const useKanbanStore = create<KanbanStore>()(
           ),
         })),
       
+      reorderTasksInColumn: (status, oldIndex, newIndex) =>
+        set((state) => {
+          const columnTasks = state.tasks
+            .filter((task) => task.status === status)
+            .sort((a, b) => a.sortOrder - b.sortOrder);
+          
+          const [movedTask] = columnTasks.splice(oldIndex, 1);
+          columnTasks.splice(newIndex, 0, movedTask);
+          
+          const updatedColumnTasks = columnTasks.map((task, index) => ({
+            ...task,
+            sortOrder: index,
+            updatedAt: new Date(),
+          }));
+          
+          const otherTasks = state.tasks.filter((task) => task.status !== status);
+          
+          return {
+            tasks: [...otherTasks, ...updatedColumnTasks],
+          };
+        }),
+      
+      moveTaskToColumn: (taskId, newStatus, targetIndex) =>
+        set((state) => {
+          const task = state.tasks.find((t) => t.id === taskId);
+          if (!task) return state;
+          
+          const targetColumnTasks = state.tasks
+            .filter((t) => t.status === newStatus && t.id !== taskId)
+            .sort((a, b) => a.sortOrder - b.sortOrder);
+          
+          targetColumnTasks.splice(targetIndex, 0, {
+            ...task,
+            status: newStatus,
+            updatedAt: new Date(),
+          });
+          
+          const updatedTargetTasks = targetColumnTasks.map((task, index) => ({
+            ...task,
+            sortOrder: index,
+            updatedAt: new Date(),
+          }));
+          
+          const otherTasks = state.tasks.filter(
+            (t) => t.status !== newStatus && t.id !== taskId
+          );
+          
+          return {
+            tasks: [...otherTasks, ...updatedTargetTasks],
+          };
+        }),
+      
       // Filter actions
       setFilter: (filter) =>
         set((state) => ({
@@ -109,7 +163,9 @@ export const useKanbanStore = create<KanbanStore>()(
       
       getTasksByStatus: (status) => {
         const filteredTasks = get().getFilteredTasks();
-        return filteredTasks.filter((task) => task.status === status);
+        return filteredTasks
+          .filter((task) => task.status === status)
+          .sort((a, b) => a.sortOrder - b.sortOrder);
       },
     }),
     {

@@ -1,16 +1,17 @@
 import { TaskDetail } from '@/components/task/TaskDetail';
 
 interface TaskDetailPageProps {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
-export default function TaskDetailPage({ params }: TaskDetailPageProps) {
+export default async function TaskDetailPage({ params }: TaskDetailPageProps) {
+  const { id } = await params;
   return (
     <main className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-5xl mx-auto">
-        <TaskDetail taskId={params.id} />
+        <TaskDetail taskId={id} />
       </div>
     </main>
   );

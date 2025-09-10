@@ -12,6 +12,7 @@ export interface Task {
   dueDate?: Date;
   createdAt: Date;
   updatedAt: Date;
+  sortOrder: number;
   subtasks?: Subtask[];
 }
 

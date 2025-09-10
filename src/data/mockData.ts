@@ -12,6 +12,7 @@ export const mockTasks: Task[] = [
     dueDate: new Date('2024-12-15'),
     createdAt: new Date('2024-12-10'),
     updatedAt: new Date('2024-12-10'),
+    sortOrder: 0,
   },
   {
     id: 'TSK-002',
@@ -24,6 +25,7 @@ export const mockTasks: Task[] = [
     dueDate: new Date('2024-12-12'),
     createdAt: new Date('2024-12-09'),
     updatedAt: new Date('2024-12-09'),
+    sortOrder: 1,
   },
   {
     id: 'TSK-003',
@@ -36,6 +38,7 @@ export const mockTasks: Task[] = [
     dueDate: new Date('2024-12-20'),
     createdAt: new Date('2024-12-08'),
     updatedAt: new Date('2024-12-08'),
+    sortOrder: 2,
   },
   {
     id: 'TSK-004',
@@ -47,6 +50,7 @@ export const mockTasks: Task[] = [
     priority: 'medium',
     createdAt: new Date('2024-12-07'),
     updatedAt: new Date('2024-12-07'),
+    sortOrder: 3,
   },
   {
     id: 'TSK-005',
@@ -59,6 +63,7 @@ export const mockTasks: Task[] = [
     dueDate: new Date('2024-12-25'),
     createdAt: new Date('2024-12-06'),
     updatedAt: new Date('2024-12-06'),
+    sortOrder: 4,
   },
   {
     id: 'TSK-006',
@@ -71,6 +76,7 @@ export const mockTasks: Task[] = [
     dueDate: new Date('2024-12-11'),
     createdAt: new Date('2024-12-05'),
     updatedAt: new Date('2024-12-10'),
+    sortOrder: 0,
   },
   {
     id: 'TSK-007',
@@ -83,6 +89,7 @@ export const mockTasks: Task[] = [
     dueDate: new Date('2024-12-18'),
     createdAt: new Date('2024-12-04'),
     updatedAt: new Date('2024-12-09'),
+    sortOrder: 1,
   },
   {
     id: 'TSK-008',
@@ -94,6 +101,7 @@ export const mockTasks: Task[] = [
     priority: 'medium',
     createdAt: new Date('2024-12-03'),
     updatedAt: new Date('2024-12-08'),
+    sortOrder: 2,
   },
   {
     id: 'TSK-009',
@@ -106,6 +114,7 @@ export const mockTasks: Task[] = [
     dueDate: new Date('2024-12-14'),
     createdAt: new Date('2024-12-02'),
     updatedAt: new Date('2024-12-07'),
+    sortOrder: 3,
   },
   {
     id: 'TSK-010',
@@ -117,6 +126,7 @@ export const mockTasks: Task[] = [
     priority: 'low',
     createdAt: new Date('2024-12-01'),
     updatedAt: new Date('2024-12-06'),
+    sortOrder: 4,
   },
   {
     id: 'TSK-011',
@@ -128,6 +138,7 @@ export const mockTasks: Task[] = [
     priority: 'medium',
     createdAt: new Date('2024-11-28'),
     updatedAt: new Date('2024-12-05'),
+    sortOrder: 0,
   },
   {
     id: 'TSK-012',
@@ -139,6 +150,7 @@ export const mockTasks: Task[] = [
     priority: 'low',
     createdAt: new Date('2024-11-25'),
     updatedAt: new Date('2024-12-03'),
+    sortOrder: 1,
   },
   {
     id: 'TSK-013',
@@ -150,6 +162,7 @@ export const mockTasks: Task[] = [
     priority: 'critical',
     createdAt: new Date('2024-11-20'),
     updatedAt: new Date('2024-12-01'),
+    sortOrder: 2,
   },
   {
     id: 'TSK-014',
@@ -161,6 +174,7 @@ export const mockTasks: Task[] = [
     priority: 'high',
     createdAt: new Date('2024-11-18'),
     updatedAt: new Date('2024-11-30'),
+    sortOrder: 3,
   },
   {
     id: 'TSK-015',
@@ -172,5 +186,6 @@ export const mockTasks: Task[] = [
     priority: 'medium',
     createdAt: new Date('2024-11-15'),
     updatedAt: new Date('2024-11-28'),
+    sortOrder: 4,
   }
 ];

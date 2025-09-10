@@ -2,10 +2,13 @@
 
 import { useKanbanStore } from '@/stores/kanbanStore';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Calendar, User, Flag, Tag, Edit3 } from 'lucide-react';
+import { ArrowLeft, Calendar, User, Flag, Tag, Edit3, Trash2, MoreHorizontal } from 'lucide-react';
 import { format } from 'date-fns';
 import { InlineTextEdit, InlineSelect, InlineTagEdit, InlineDateEdit, InlineComboBox } from './InlineEdit';
 import { TaskStatus, Priority } from '@/types';
+import { DropdownMenu } from '@/components/shared/DropdownMenu';
+import { ConfirmationModal } from '@/components/shared/ConfirmationModal';
+import { useState } from 'react';
 
 interface TaskDetailProps {
   taskId: string;
@@ -13,8 +16,9 @@ interface TaskDetailProps {
 
 export function TaskDetail({ taskId }: TaskDetailProps) {
   const router = useRouter();
-  const { tasks, updateTask } = useKanbanStore();
+  const { tasks, updateTask, deleteTask } = useKanbanStore();
   const task = tasks.find(t => t.id === taskId);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   
   // Get all unique assignees and tags for dropdowns
   const allAssignees = [...new Set(tasks.map(t => t.assignee))];
@@ -72,16 +76,37 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
   const handleUpdate = (field: string, value: any) => {
     updateTask(task.id, { [field]: value });
   };
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteTask(task.id);
+    router.push('/'); // Navigate back to main board
+  };
+
+  const dropdownItems = [
+    {
+      label: 'Delete task',
+      icon: <Trash2 className="w-4 h-4" />,
+      onClick: handleDeleteClick,
+      variant: 'danger' as const,
+    },
+  ];
   
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <button
-        onClick={() => router.back()}
-        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
-      >
-        <ArrowLeft className="w-4 h-4" />
-        Back to Board
-      </button>
+      <div className="flex justify-between items-center mb-6">
+        <button
+          onClick={() => router.back()}
+          className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          Back to Board
+        </button>
+        <DropdownMenu items={dropdownItems} />
+      </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
@@ -238,6 +263,17 @@ export function TaskDetail({ taskId }: TaskDetailProps) {
           </div>
         </div>
       </div>
+      
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        title="Delete Task"
+        message={`Are you sure you want to delete "${task.title}"? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+      />
     </div>
   );
 }

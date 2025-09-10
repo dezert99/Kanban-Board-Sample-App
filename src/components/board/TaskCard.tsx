@@ -9,6 +9,9 @@ import { useRouter } from 'next/navigation';
 import { MouseEvent, useState } from 'react';
 import { Edit3 } from 'lucide-react';
 import { TaskModal } from '@/components/task/TaskModal';
+import { TaskCardDropdown } from '@/components/shared/DropdownMenu';
+import { ConfirmationModal } from '@/components/shared/ConfirmationModal';
+import { useKanbanStore } from '@/stores/kanbanStore';
 
 interface TaskCardProps {
   task: Task;
@@ -16,7 +19,9 @@ interface TaskCardProps {
 
 export function TaskCard({ task }: TaskCardProps) {
   const router = useRouter();
+  const { deleteTask } = useKanbanStore();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const {
     attributes,
     listeners,
@@ -39,17 +44,24 @@ export function TaskCard({ task }: TaskCardProps) {
   };
 
   const handleClick = (e: MouseEvent) => {
-    // Only navigate if we're not dragging and not clicking on edit button
+    // Only navigate if we're not dragging and not clicking on action buttons
     const target = e.target as HTMLElement;
-    if (!isDragging && !target.closest('.edit-button')) {
+    if (!isDragging && !target.closest('.edit-button') && !target.closest('.dropdown-menu')) {
       e.preventDefault();
       router.push(`/task/${task.id}`);
     }
   };
   
-  const handleEditClick = (e: MouseEvent) => {
-    e.stopPropagation();
+  const handleEditClick = () => {
     setIsEditModalOpen(true);
+  };
+
+  const handleDeleteClick = () => {
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteTask(task.id);
   };
 
   const priorityColors = {
@@ -88,20 +100,20 @@ export function TaskCard({ task }: TaskCardProps) {
       )}
     >
       <div className="flex justify-between items-start mb-2">
-        <h3 className="font-medium text-sm text-gray-900 line-clamp-2 flex-1">
-          {task.title}
-        </h3>
-        <div className="flex items-center gap-1 ml-2 shrink-0">
-          <button
-            onClick={handleEditClick}
-            className="edit-button p-1 text-gray-400 hover:text-gray-600 transition-colors rounded"
-            title="Edit task"
-          >
-            <Edit3 className="w-3 h-3" />
-          </button>
-          <span className="text-xs text-gray-500">
+        <div className="flex-1">
+          <h3 className="font-medium text-sm text-gray-900 line-clamp-2">
+            {task.title}
+          </h3>
+          <span className="text-xs text-gray-500 mt-1 block">
             {task.id}
           </span>
+        </div>
+        <div className="ml-2 shrink-0">
+          <TaskCardDropdown
+            onEdit={handleEditClick}
+            onDelete={handleDeleteClick}
+            className="dropdown-menu"
+          />
         </div>
       </div>
       
@@ -135,7 +147,7 @@ export function TaskCard({ task }: TaskCardProps) {
             'px-2 py-1 text-xs rounded font-medium',
             getDueDateColor(task.dueDate)
           )}>
-            {format(task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate), 'MMM d')}
+            {format(task.dueDate instanceof Date ? task.dueDate : new Date(task.dueDate), 'MMM d, yyyy')}
           </span>
         )}
       </div>
@@ -145,6 +157,17 @@ export function TaskCard({ task }: TaskCardProps) {
       task={task}
       isOpen={isEditModalOpen}
       onClose={() => setIsEditModalOpen(false)}
+    />
+    
+    <ConfirmationModal
+      isOpen={isDeleteModalOpen}
+      onClose={() => setIsDeleteModalOpen(false)}
+      onConfirm={handleConfirmDelete}
+      title="Delete Task"
+      message={`Are you sure you want to delete "${task.title}"? This action cannot be undone.`}
+      confirmText="Delete"
+      cancelText="Cancel"
+      variant="danger"
     />
   </>
   );

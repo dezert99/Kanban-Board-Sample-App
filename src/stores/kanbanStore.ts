@@ -215,6 +215,14 @@ export const useKanbanStore = create<KanbanStore>()(
         tasks: state.tasks,
         filters: state.filters,
       }),
+      // Custom merge function to prioritize persisted data over mock data
+      // This is necessary during development to prevent flash of mock data before localStorage loads
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...(persistedState as any),
+        // If persisted tasks exist and are not empty, use them; otherwise use mock data
+        tasks: (persistedState as any)?.tasks?.length > 0 ? (persistedState as any).tasks : mockTasks,
+      }),
     }
   )
 );
